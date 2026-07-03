@@ -9,6 +9,7 @@ let
   kiwixEnabled = cfg.kiwix.enable or false;
   ollamaEnabled = cfg.ollama.enable or false;
   webuiEnabled = cfg.open-webui.enable or false;
+  cyberchefEnabled = cfg.cyberchef.enable or false;
   kiwixPort = cfg.kiwix.port or 9090;
   ollamaPort = cfg.ollama.port or 11434;
   webuiPort = cfg.open-webui.port or 9091;
@@ -71,6 +72,14 @@ in
               }
               handle_path /api/v1* {
                 reverse_proxy http://127.0.0.1:${toString webuiPort}
+              }
+              ''}
+
+              ${lib.optionalString cyberchefEnabled ''
+              # ── CyberChef static files ──
+              handle_path /tools* {
+                root * ${pkgs.cyberchef}/share/cyberchef
+                file_server
               }
               ''}
             '';

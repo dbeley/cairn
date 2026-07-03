@@ -5,6 +5,7 @@
     ./kiwix.nix
     ./ollama.nix
     ./open-webui.nix
+    ./cyberchef.nix
     ./caddy.nix
   ];
 }

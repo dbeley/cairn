@@ -33,6 +33,7 @@
               kiwix.zimFiles = {};
               ollama.enable = true;
               open-webui.enable = true;
+              cyberchef.enable = true;
               caddy.enable = true;
             };
             fileSystems."/".device = "/dev/null";
@@ -47,6 +48,7 @@
         echo "  kiwix.enable = ${pkgs.lib.boolToString result.config.services.cairn.kiwix.enable}" >> $out
         echo "  ollama.enable = ${pkgs.lib.boolToString result.config.services.cairn.ollama.enable}" >> $out
         echo "  open-webui.enable = ${pkgs.lib.boolToString result.config.services.cairn.open-webui.enable}" >> $out
+        echo "  cyberchef.enable = ${pkgs.lib.boolToString result.config.services.cairn.cyberchef.enable}" >> $out
         echo "  caddy.enable = ${pkgs.lib.boolToString result.config.services.cairn.caddy.enable}" >> $out
       '';
     });
