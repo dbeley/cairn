@@ -40,6 +40,11 @@ in
       httpPort = caddyCfg.port;
       httpsPort = lib.mkDefault 443;  # Explicitly not listening on 443 by default
 
+      # Disable automatic HTTPS for local/offline use
+      globalConfig = ''
+        auto_https off
+      '';
+
       virtualHosts = lib.mkMerge ([
         {
           "${cfg.domain}" = {
