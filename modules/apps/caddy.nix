@@ -38,18 +38,11 @@ in
       # Use the configured port as the HTTP port (default is 80, which conflicts
       # with other services like Hermes)
       httpPort = caddyCfg.port;
-      httpsPort = lib.mkDefault 443;  # Explicitly not listening on 443 by default
-
-      # Disable automatic HTTPS redirection — Cairn is for local/LAN use
-      globalConfig = ''
-        auto_https disable_redirects
-      '';
 
       virtualHosts = lib.mkMerge ([
         {
-          "${cfg.domain}" = {
+          "http://${cfg.domain}" = {
             extraConfig = ''
-              tls internal
               # ── Dashboard (root) ──
               handle / {
                 root * ${dashboardDir}
