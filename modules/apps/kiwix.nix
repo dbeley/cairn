@@ -5,6 +5,8 @@ let
   kiwixCfg = cfg.kiwix;
   inherit (lib) types;
 
+  hasZimFiles = kiwixCfg.zimFiles != {};
+
   # Build the download script for all declared ZIM files
   downloadScript = pkgs.writeShellScriptBin "cairn-kiwix-download" ''
     set -euo pipefail
@@ -51,9 +53,13 @@ let
   '';
 
   # Build the library attrset for kiwix-serve
-  # This creates a linkFarm in the Nix store — symlinks pointing to the runtime ZIM files
-  # Nix allows dangling symlinks at eval time; the files must exist at service start
   libraryFromConfig = lib.mapAttrs (name: zim: "${kiwixCfg.dataDir}/${zim.filename}") kiwixCfg.zimFiles;
+
+  # Empty library XML for when no ZIM files are declared
+  emptyLibraryXml = pkgs.writeText "empty-library.xml" ''
+    <?xml version="1.0" encoding="UTF-8"?>
+    <library version="20110515"/>
+  '';
 in
 {
   options.services.cairn.kiwix = {
@@ -121,8 +127,9 @@ in
 
   config = lib.mkIf (cfg.enable && kiwixCfg.enable) {
     # ── Download service (oneshot, runs before kiwix-serve) ──
+    # Only create if we have ZIM files to download
 
-    systemd.services.cairn-kiwix-download = {
+    systemd.services.cairn-kiwix-download = lib.mkIf hasZimFiles {
       description = "Cairn Kiwix ZIM downloader";
       wantedBy = [ "multi-user.target" ];
       before = [ "kiwix-serve.service" ];
@@ -133,9 +140,7 @@ in
         ExecStart = "${lib.getExe downloadScript}";
         User = "cairn";
         Group = "cairn";
-        # Network access for downloads
         PrivateNetwork = false;
-        # Allow curl to write to dataDir
         ReadWritePaths = [ kiwixCfg.dataDir ];
         ProtectSystem = "strict";
         ProtectHome = true;
@@ -143,15 +148,18 @@ in
       };
     };
 
-    # Download the ZIMs first, then start kiwix-serve
-    systemd.services.kiwix-serve = {
-      requires = [ "cairn-kiwix-download.service" ];
-      after = [ "cairn-kiwix-download.service" ];
-    };
+    # Download the ZIMs first, then start kiwix-serve (only if download service exists)
+    systemd.services.kiwix-serve = lib.mkMerge [
+      (lib.mkIf hasZimFiles {
+        requires = [ "cairn-kiwix-download.service" ];
+        after = [ "cairn-kiwix-download.service" ];
+      })
+    ];
 
     # ── Auto-update timer (optional) ──
+    # Only create if we have ZIM files and auto-update is enabled
 
-    systemd.timers.cairn-kiwix-update = lib.mkIf (kiwixCfg.autoUpdate != null) {
+    systemd.timers.cairn-kiwix-update = lib.mkIf (hasZimFiles && kiwixCfg.autoUpdate != null) {
       description = "Cairn Kiwix periodic ZIM update";
       timerConfig = {
         OnCalendar = if kiwixCfg.autoUpdate == "weekly" then "weekly" else "monthly";
@@ -161,7 +169,7 @@ in
       wantedBy = [ "timers.target" ];
     };
 
-    systemd.services.cairn-kiwix-update = lib.mkIf (kiwixCfg.autoUpdate != null) {
+    systemd.services.cairn-kiwix-update = lib.mkIf (hasZimFiles && kiwixCfg.autoUpdate != null) {
       description = "Cairn Kiwix ZIM updater (timer)";
       serviceConfig = {
         Type = "oneshot";
@@ -181,9 +189,11 @@ in
     services.kiwix-serve = {
       enable = true;
       port = kiwixCfg.port;
-      # Bind to localhost only — reverse proxy (Caddy) handles external access
       address = "127.0.0.1";
+    } // (if hasZimFiles then {
       library = libraryFromConfig;
-    };
+    } else {
+      libraryPath = emptyLibraryXml;
+    });
   };
 }
