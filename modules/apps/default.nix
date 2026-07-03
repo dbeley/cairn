@@ -4,6 +4,7 @@
   imports = [
     ./kiwix.nix
     ./ollama.nix
+    ./open-webui.nix
     ./caddy.nix
   ];
 }

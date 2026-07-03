@@ -8,8 +8,10 @@ let
 
   kiwixEnabled = cfg.kiwix.enable or false;
   ollamaEnabled = cfg.ollama.enable or false;
+  webuiEnabled = cfg.open-webui.enable or false;
   kiwixPort = cfg.kiwix.port or 9090;
   ollamaPort = cfg.ollama.port or 11434;
+  webuiPort = cfg.open-webui.port or 9091;
 
   # Package the static dashboard as a Nix store path
   dashboardDir = builtins.path {
@@ -51,9 +53,24 @@ in
               ''}
 
               ${lib.optionalString ollamaEnabled ''
-              # ── Ollama API proxy (for Open WebUI later) ──
+              # ── Ollama API proxy ──
               handle_path /ollama* {
                 reverse_proxy http://127.0.0.1:${toString ollamaPort}
+              }
+              ''}
+
+              ${lib.optionalString webuiEnabled ''
+              # ── Open WebUI chat interface ──
+              handle_path /chat* {
+                reverse_proxy http://127.0.0.1:${toString webuiPort}
+                # Open WebUI uses WebSocket for streaming
+              }
+              # Proxy /ws for Open WebUI's WebSocket connections
+              handle_path /ws* {
+                reverse_proxy http://127.0.0.1:${toString webuiPort}
+              }
+              handle_path /api/v1* {
+                reverse_proxy http://127.0.0.1:${toString webuiPort}
               }
               ''}
             '';
