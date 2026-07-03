@@ -40,15 +40,16 @@ in
       httpPort = caddyCfg.port;
       httpsPort = lib.mkDefault 443;  # Explicitly not listening on 443 by default
 
-      # Disable automatic HTTPS for local/offline use
+      # Disable automatic HTTPS redirection — Cairn is for local/LAN use
       globalConfig = ''
-        auto_https off
+        auto_https disable_redirects
       '';
 
       virtualHosts = lib.mkMerge ([
         {
           "${cfg.domain}" = {
             extraConfig = ''
+              tls internal
               # ── Dashboard (root) ──
               handle / {
                 root * ${dashboardDir}
