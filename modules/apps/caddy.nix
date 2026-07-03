@@ -35,10 +35,14 @@ in
     services.caddy = {
       enable = true;
 
+      # Use the configured port as the HTTP port (default is 80, which conflicts
+      # with other services like Hermes)
+      httpPort = caddyCfg.port;
+      httpsPort = lib.mkDefault 443;  # Explicitly not listening on 443 by default
+
       virtualHosts = lib.mkMerge ([
         {
           "${cfg.domain}" = {
-            listenAddresses = [ ":${toString caddyCfg.port}" ];
             extraConfig = ''
               # ── Dashboard (root) ──
               handle / {
