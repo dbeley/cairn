@@ -48,8 +48,8 @@ in
               }
 
               ${lib.optionalString kiwixEnabled ''
-              # ── Kiwix proxy ──
-              handle_path /kiwix* {
+              # ── Kiwix proxy (preserve path prefix for urlRootLocation) ──
+              handle /kiwix* {
                 reverse_proxy http://127.0.0.1:${toString kiwixPort}
               }
               ''}

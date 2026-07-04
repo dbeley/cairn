@@ -54,7 +54,12 @@ in
       };
 
       openFirewall = false;  # Caddy handles external access
+
+      # Port 9091 is opened in networking.firewall by the user
     };
+
+    # Open firewall if enabled
+    networking.firewall.allowedTCPPorts = lib.mkIf webuiCfg.enable [ webuiCfg.port ];
 
     # Warn if Ollama is not enabled
     warnings = lib.optional (!ollamaEnabled) ''
