@@ -190,6 +190,7 @@ in
       enable = true;
       port = kiwixCfg.port;
       address = "127.0.0.1";
+      extraArgs = [ "--urlRootLocation=/kiwix" ];
     } // (if hasZimFiles then {
       library = libraryFromConfig;
     } else {
