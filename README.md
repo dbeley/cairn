@@ -120,38 +120,3 @@ Downloads are verified by SHA256 hash. Stale files (declared removed) are cleane
 # Automatic content updates via systemd timers
 services.cairn.kiwix.autoUpdate = "monthly";  # or "weekly"
 ```
-
-## Why not X?
-
-Some tools from Project N.O.M.A.D. are intentionally excluded:
-
-- **Qdrant** — Open WebUI handles RAG natively.
-- **Jellyfin / Navidrome / Calibre-Web** — no downloadable, structured content sources. An empty media library is pointless.
-- **Paperless-ngx** — document management, not offline knowledge. Content comes from the user.
-- **FlatNotes / Gollum** — notes aren't part of Cairn's knowledge-server mission.
-
-## FAQ
-
-**Q: Why not just use the upstream NixOS modules directly?**
-
-You can. Cairn adds:
-- Unified namespaced config under `services.cairn.*`
-- Automatic Caddy reverse-proxy routes
-- Content download/update automation (ZIMs, models)
-- A dashboard that ties it all together
-
-**Q: Does this work on non-NixOS?**
-
-No. Cairn is a NixOS module. The target audience is NixOS power users.
-
-**Q: Can I run this on a Raspberry Pi?**
-
-Kiwix and CyberChef run fine on ARM. Ollama with large models needs a beefy GPU — consider offloading inference to another host.
-
-**Q: Why is there no authentication?**
-
-By design, like NOMAD. Cairn is meant for trusted LAN environments. If you need auth, use a reverse proxy with Authelia or OAuth2-Proxy.
-
-## License
-
-[Apache 2.0](LICENSE) — same as Project N.O.M.A.D.
