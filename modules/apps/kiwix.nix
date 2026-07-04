@@ -129,7 +129,7 @@ in
     # ── Ensure the ZIM data directory exists ──
     # Required because ProtectSystem=strict needs ReadWritePaths to exist
     systemd.tmpfiles.rules = [
-      "d ${kiwixCfg.dataDir} 0750 cairn cairn - -"
+      "d ${kiwixCfg.dataDir} 0755 cairn cairn - -"
     ];
 
     # ── Download service (oneshot, runs before kiwix-serve) ──

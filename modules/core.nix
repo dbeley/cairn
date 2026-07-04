@@ -40,7 +40,7 @@ in
   config = lib.mkIf cfg.enable {
     # Create the data directory on activation
     systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0750 cairn cairn - -"
+      "d ${cfg.dataDir} 0755 cairn cairn - -"
     ];
 
     # Create a dedicated user/group
