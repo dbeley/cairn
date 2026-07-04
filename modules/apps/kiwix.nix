@@ -159,6 +159,10 @@ in
       (lib.mkIf hasZimFiles {
         requires = [ "cairn-kiwix-download.service" ];
         after = [ "cairn-kiwix-download.service" ];
+        # Allow kiwix-serve to read ZIM files outside the Nix store
+        serviceConfig = {
+          ReadWritePaths = [ kiwixCfg.dataDir ];
+        };
       })
     ];
 
