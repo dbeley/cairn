@@ -126,6 +126,12 @@ in
   };
 
   config = lib.mkIf (cfg.enable && kiwixCfg.enable) {
+    # ── Ensure the ZIM data directory exists ──
+    # Required because ProtectSystem=strict needs ReadWritePaths to exist
+    systemd.tmpfiles.rules = [
+      "d ${kiwixCfg.dataDir} 0750 cairn cairn - -"
+    ];
+
     # ── Download service (oneshot, runs before kiwix-serve) ──
     # Only create if we have ZIM files to download
 
